@@ -1,0 +1,17 @@
+{
+  "name": "delegation-native",
+  "description": "Marketplace du plugin delegation-native : délégation de l'implémentation à un petit modèle.",
+  "owner": {
+    "name": "Mathias"
+  },
+  "plugins": [
+    {
+      "name": "delegation-native",
+      "source": "./",
+      "description": "Délégation de l'implémentation à un sous-agent sur un petit modèle, dans des worktrees git, avec vérification déterministe.",
+      "author": {
+        "name": "Mathias"
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "delegation-native",
+  "version": "0.2.0",
+  "description": "Claude Code conçoit, découpe et vérifie ; un sous-agent sur un petit modèle implémente chaque tâche dans un worktree git isolé, avec vérification déterministe.",
+  "license": "MIT",
+  "keywords": [
+    "delegation",
+    "subagent",
+    "worktree",
+    "haiku"
+  ],
+  "author": {
+    "name": "Mathias"
+  }
+}
