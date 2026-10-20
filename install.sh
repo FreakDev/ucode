@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installation manuelle (sans plugin ni npx skills) du skill delegation-native
+# Installation manuelle (sans plugin ni npx skills) du skill ucode
 # et du sous-agent executant pour Claude Code.
 #
 # Usage :
@@ -13,7 +13,7 @@
 #   -h, --help       affiche cette aide
 set -euo pipefail
 
-SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/skills/delegation-native"
+SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/skills/ucode"
 GLOBAL=0; FORCE=0; AGENT=1; MODELE="haiku"; CIBLE=""
 
 aide() { sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; }
@@ -46,7 +46,7 @@ else
 fi
 
 AGENT_DEST="$CLAUDE_DIR/agents/executant.md"
-SKILL_DEST="$CLAUDE_DIR/skills/delegation-native"
+SKILL_DEST="$CLAUDE_DIR/skills/ucode"
 
 if [ "$FORCE" -eq 0 ] && { [ -e "$SKILL_DEST" ] || { [ "$AGENT" -eq 1 ] && [ -e "$AGENT_DEST" ]; }; }; then
   echo "Une installation existe déjà dans $CLAUDE_DIR. Relance avec --force pour la remplacer." >&2
@@ -67,8 +67,8 @@ fi
 
 if [ "$GLOBAL" -eq 0 ]; then
   GI="$CIBLE/.gitignore"
-  if ! { [ -f "$GI" ] && grep -qx '\.delegation/' "$GI"; }; then
-    printf '.delegation/\n' >> "$GI"
+  if ! { [ -f "$GI" ] && grep -qx '\.ucode/' "$GI"; }; then
+    printf '.ucode/\n' >> "$GI"
   fi
 fi
 

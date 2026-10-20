@@ -1,4 +1,4 @@
-# delegation-native
+# ucode
 
 Variante « skill seul » de l'agent de code délégué. Claude Code (gros modèle) conçoit, découpe, écrit les tests et vérifie. Un sous-agent `executant`, sur un petit modèle (Haiku par défaut), implémente chaque tâche dans un worktree git isolé. Un script vérifie le résultat de façon déterministe : fichiers réellement modifiés via git, périmètre, tests relancés.
 
@@ -10,7 +10,7 @@ Aucun serveur, aucune dépendance en dehors de git et bash.
 .claude-plugin/plugin.json          manifeste du plugin Claude Code
 .claude-plugin/marketplace.json     marketplace (ce dépôt est sa propre marketplace)
 agents/executant.md                 sous-agent fourni par le plugin
-skills/delegation-native/
+skills/ucode/
   SKILL.md                          méthode de l'orchestrateur
   executant.md                      modèle du sous-agent (amorçage hors plugin)
   verifier.sh                       vérification déterministe
@@ -18,7 +18,7 @@ install.sh / uninstall.sh           installation manuelle
 tests/test.sh                       auto-test
 ```
 
-`agents/executant.md` et `skills/delegation-native/executant.md` doivent rester identiques ; l'auto-test le vérifie.
+`agents/executant.md` et `skills/ucode/executant.md` doivent rester identiques ; l'auto-test le vérifie.
 
 ## Installation
 
@@ -30,18 +30,18 @@ Depuis le dépôt publié sur GitHub :
 
 ```
 /plugin marketplace add FreakDev/ucode
-/plugin install delegation-native@delegation-native
+/plugin install ucode@ucode
 ```
 
 Ou en ligne de commande, y compris depuis un clone local :
 
 ```bash
-claude plugin marketplace add /chemin/vers/delegation-native
-claude plugin install delegation-native@delegation-native              # pour l'utilisateur
-claude plugin install delegation-native@delegation-native --scope project
+claude plugin marketplace add /chemin/vers/ucode
+claude plugin install ucode@ucode              # pour l'utilisateur
+claude plugin install ucode@ucode --scope project
 ```
 
-Le plugin fournit le skill et le sous-agent `delegation-native:executant`, avec sa limite de tours.
+Le plugin fournit le skill et le sous-agent `ucode:executant`, avec sa limite de tours.
 
 ### 2. npx skills
 
@@ -69,14 +69,14 @@ Redémarrez Claude Code après l'installation.
 
 Dans Claude Code, sur un dépôt git propre :
 
-> Utilise le skill delegation-native pour implémenter <fonctionnalité>.
+> Utilise le skill ucode pour implémenter <fonctionnalité>.
 
-Claude fixe les interfaces, écrit les tests, crée un worktree par tâche, lance l'exécutant, vérifie avec `verifier.sh`, relit, puis fusionne ou abandonne. Chaque tâche est journalisée dans `.delegation/journal.jsonl`, que le skill ajoute au `.gitignore`.
+Claude fixe les interfaces, écrit les tests, crée un worktree par tâche, lance l'exécutant, vérifie avec `verifier.sh`, relit, puis fusionne ou abandonne. Chaque tâche est journalisée dans `.ucode/journal.jsonl`, que le skill ajoute au `.gitignore`.
 
 ### verifier.sh seul
 
 ```bash
-skills/delegation-native/verifier.sh <worktree> <commit_base> "<fichier1,fichier2>" "<commande de tests>" [délai_secondes]
+skills/ucode/verifier.sh <worktree> <commit_base> "<fichier1,fichier2>" "<commande de tests>" [délai_secondes]
 ```
 
 Sortie : `STATUT` (succes, tests_en_echec, perimetre_viole, delai_depasse, refus), fichiers réellement modifiés, fichiers hors périmètre, fin de la sortie des tests. Code de sortie 0 en cas de succès, 1 en cas d'échec, 2 en cas de refus.

@@ -10,9 +10,9 @@ verifie() { if [ "$2" = "$3" ]; then echo "  ok   $1"; OK=$((OK+1)); else echo "
 export GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.com GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.com
 
 echo "Structure du dépôt"
-cmp -s "$PKG/agents/executant.md" "$PKG/skills/delegation-native/executant.md"; verifie "agent du plugin identique à celui du skill" "$?" 0
+cmp -s "$PKG/agents/executant.md" "$PKG/skills/ucode/executant.md"; verifie "agent du plugin identique à celui du skill" "$?" 0
 python3 -c "import json,sys; [json.load(open(f)) for f in sys.argv[1:]]" "$PKG/.claude-plugin/plugin.json" "$PKG/.claude-plugin/marketplace.json"; verifie "plugin.json et marketplace.json valides" "$?" 0
-grep -q "DOSSIER_SKILL/verifier.sh" "$PKG/skills/delegation-native/SKILL.md"; verifie "skill autonome (chemin relatif à son dossier)" "$?" 0
+grep -q "DOSSIER_SKILL/verifier.sh" "$PKG/skills/ucode/SKILL.md"; verifie "skill autonome (chemin relatif à son dossier)" "$?" 0
 if command -v claude >/dev/null 2>&1; then
   claude plugin validate "$PKG" >/dev/null 2>&1; verifie "claude plugin validate" "$?" 0
 fi
@@ -24,16 +24,16 @@ printf 'def add(a, b):\n    raise NotImplementedError\n' > calc.py
 printf 'from calc import add\nassert add(2, 3) == 5\nprint("ok")\n' > test_calc.py
 git add -A && git commit -qm init
 "$PKG/install.sh" "$REPO" >/dev/null; verifie "install.sh projet" "$?" 0
-[ -f .claude/agents/executant.md ] && [ -x .claude/skills/delegation-native/verifier.sh ]; verifie "fichiers installés" "$?" 0
-[ -f .claude/skills/delegation-native/executant.md ]; verifie "modèle de l'agent embarqué dans le skill" "$?" 0
-grep -qx '\.delegation/' .gitignore; verifie ".gitignore mis à jour" "$?" 0
+[ -f .claude/agents/executant.md ] && [ -x .claude/skills/ucode/verifier.sh ]; verifie "fichiers installés" "$?" 0
+[ -f .claude/skills/ucode/executant.md ]; verifie "modèle de l'agent embarqué dans le skill" "$?" 0
+grep -qx '\.ucode/' .gitignore; verifie ".gitignore mis à jour" "$?" 0
 "$PKG/install.sh" "$REPO" >/dev/null 2>&1; verifie "refus sans --force" "$?" 1
-"$PKG/install.sh" --force --modele sonnet "$REPO" >/dev/null; grep -q '^model: sonnet$' .claude/agents/executant.md && grep -q '^model: sonnet$' .claude/skills/delegation-native/executant.md; verifie "option --modele" "$?" 0
+"$PKG/install.sh" --force --modele sonnet "$REPO" >/dev/null; grep -q '^model: sonnet$' .claude/agents/executant.md && grep -q '^model: sonnet$' .claude/skills/ucode/executant.md; verifie "option --modele" "$?" 0
 REPO2="$TMPD/jouet2"; mkdir -p "$REPO2"; git -C "$REPO2" init -q
-"$PKG/install.sh" --sans-agent "$REPO2" >/dev/null && [ ! -e "$REPO2/.claude/agents/executant.md" ] && [ -f "$REPO2/.claude/skills/delegation-native/executant.md" ]; verifie "option --sans-agent" "$?" 0
+"$PKG/install.sh" --sans-agent "$REPO2" >/dev/null && [ ! -e "$REPO2/.claude/agents/executant.md" ] && [ -f "$REPO2/.claude/skills/ucode/executant.md" ]; verifie "option --sans-agent" "$?" 0
 git add -A && git commit -qm "install"
 
-V="$REPO/.claude/skills/delegation-native/verifier.sh"
+V="$REPO/.claude/skills/ucode/verifier.sh"
 BASE=$(git rev-parse HEAD)
 WT="$TMPD/wt"; git worktree add -q -b deleg/add "$WT" HEAD
 TESTS="python3 test_calc.py"
@@ -63,9 +63,9 @@ git -C "$WT" add -f __pycache__ && git -C "$WT" commit -qm "cache commité par e
 
 echo "Installation globale (HOME temporaire)"
 HOME="$TMPD/home" "$PKG/install.sh" --global >/dev/null; verifie "install.sh --global" "$?" 0
-[ -f "$TMPD/home/.claude/skills/delegation-native/SKILL.md" ]; verifie "skill global présent" "$?" 0
+[ -f "$TMPD/home/.claude/skills/ucode/SKILL.md" ]; verifie "skill global présent" "$?" 0
 HOME="$TMPD/home" "$PKG/uninstall.sh" --global >/dev/null
-[ ! -e "$TMPD/home/.claude/skills/delegation-native" ]; verifie "désinstallation globale" "$?" 0
+[ ! -e "$TMPD/home/.claude/skills/ucode" ]; verifie "désinstallation globale" "$?" 0
 
 echo; echo "$OK réussis, $KO échoués"
 [ "$KO" -eq 0 ]

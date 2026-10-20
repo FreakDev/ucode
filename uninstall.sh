@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Désinstalle le skill delegation-native et le sous-agent executant.
+# Désinstalle le skill ucode et le sous-agent executant.
 # Usage : ./uninstall.sh [chemin_du_projet]   ou   ./uninstall.sh --global
 set -euo pipefail
 
@@ -10,5 +10,5 @@ else
 fi
 
 rm -f "$CLAUDE_DIR/agents/executant.md"
-rm -rf "$CLAUDE_DIR/skills/delegation-native"
-echo "Désinstallé de $CLAUDE_DIR (le journal .delegation/ et le .gitignore sont laissés en place)."
+rm -rf "$CLAUDE_DIR/skills/ucode"
+echo "Désinstallé de $CLAUDE_DIR (le journal .ucode/ et le .gitignore sont laissés en place)."

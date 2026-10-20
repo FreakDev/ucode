@@ -1,5 +1,5 @@
 ---
-name: delegation-native
+name: ucode
 description: Découper le travail d'implémentation et le déléguer à un sous-agent sur un petit modèle, dans des worktrees git, avec contrôles déterministes. À utiliser dès qu'une tâche d'implémentation dépasse quelques lignes.
 ---
 
@@ -14,11 +14,11 @@ Dans ce document, DOSSIER_SKILL désigne le dossier qui contient ce fichier SKIL
 
 ## 0. Amorçage (une fois par session, avant la première délégation)
 
-1. **Trouver l'exécutant.** Si un sous-agent nommé `delegation-native:executant` (installation en plugin) ou `executant` figure parmi tes sous-agents disponibles, c'est lui que tu lanceras. Passe à l'étape 3.
+1. **Trouver l'exécutant.** Si un sous-agent nommé `ucode:executant` (installation en plugin) ou `executant` figure parmi tes sous-agents disponibles, c'est lui que tu lanceras. Passe à l'étape 3.
 2. **Sinon, le créer (installation en skill seul).**
    - Si `.claude/agents/executant.md` n'existe pas à la racine du dépôt, dis à l'utilisateur en une phrase que tu crées le sous-agent du skill, puis copie `DOSSIER_SKILL/executant.md` vers `.claude/agents/executant.md` (crée le dossier si besoin).
    - Un sous-agent créé en cours de session n'est chargé qu'à la session suivante. D'ici là, utilise le **mode de repli** : lance un sous-agent généraliste en forçant le modèle `haiku`, et place en tête de son prompt les consignes de `DOSSIER_SKILL/executant.md` (le texte situé après le frontmatter), suivies de la spec.
-3. **Journal.** Si `.delegation/` n'est pas dans le `.gitignore` du dépôt, ajoute-le.
+3. **Journal.** Si `.ucode/` n'est pas dans le `.gitignore` du dépôt, ajoute-le.
 
 ## 1. Méthode
 
@@ -92,7 +92,7 @@ Seulement si le statut est `succes`, relis le code avec `git -C <worktree> diff 
 
 ## 6. Journal
 
-Après chaque tâche terminée, ajoute une ligne JSON à `.delegation/journal.jsonl` à la racine du dépôt principal :
+Après chaque tâche terminée, ajoute une ligne JSON à `.ucode/journal.jsonl` à la racine du dépôt principal :
 
     {"date": "...", "tache": "...", "executant": "<plugin|agent-projet|repli>-<modèle>", "nb_fichiers_autorises": 0, "tentatives": 0, "statut_final": "succes|abandon", "type_echec": "aucun|ponctuel|perimetre|delai|comprehension|trop_gros|trop_subtil", "reprise_par_orchestrateur": false}
 

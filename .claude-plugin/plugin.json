@@ -1,5 +1,5 @@
 {
-  "name": "delegation-native",
+  "name": "ucode",
   "version": "0.2.0",
   "description": "Claude Code conçoit, découpe et vérifie ; un sous-agent sur un petit modèle implémente chaque tâche dans un worktree git isolé, avec vérification déterministe.",
   "license": "MIT",

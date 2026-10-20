@@ -1,6 +1,6 @@
 ---
 name: executant
-description: Petit agent d'implémentation. Utilisé uniquement par le skill delegation-native pour implémenter une tâche bornée dans un worktree git donné.
+description: Petit agent d'implémentation. Utilisé uniquement par le skill ucode pour implémenter une tâche bornée dans un worktree git donné.
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: haiku
 maxTurns: 40
