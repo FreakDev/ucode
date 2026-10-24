@@ -24,7 +24,7 @@ printf 'def add(a, b):\n    raise NotImplementedError\n' > calc.py
 printf 'from calc import add\nassert add(2, 3) == 5\nprint("ok")\n' > test_calc.py
 git add -A && git commit -qm init
 "$PKG/install.sh" "$REPO" >/dev/null; verifie "install.sh projet" "$?" 0
-[ -f .claude/agents/executant.md ] && [ -x .claude/skills/ucode/verifier.sh ]; verifie "fichiers installés" "$?" 0
+[ -f .claude/agents/executant.md ] && [ -x .claude/skills/ucode/verifier.sh ] && [ -x .claude/skills/ucode/executant-pi.sh ]; verifie "fichiers installés" "$?" 0
 [ -f .claude/skills/ucode/executant.md ]; verifie "modèle de l'agent embarqué dans le skill" "$?" 0
 grep -qx '\.ucode/' .gitignore; verifie ".gitignore mis à jour" "$?" 0
 "$PKG/install.sh" "$REPO" >/dev/null 2>&1; verifie "refus sans --force" "$?" 1

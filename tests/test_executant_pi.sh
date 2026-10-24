@@ -53,7 +53,8 @@ verifie "pi lancé dans le worktree" "$(cat "$TMPD/trace/cwd")" "$WT"
 grep -qx -- "-p" "$TMPD/trace/args"; verifie "mode non interactif (-p)" "$?" 0
 grep -qx -- "--no-session" "$TMPD/trace/args"; verifie "--no-session" "$?" 0
 grep -A1 -x -- "--model" "$TMPD/trace/args" | tail -n1 | grep -qx "colibri/qwen3.6-colibri"; verifie "--model colibri/qwen3.6-colibri" "$?" 0
-grep -qx -- "@$SPEC" "$TMPD/trace/args"; verifie "spec passée en chemin absolu (@)" "$?" 0
+SPEC_PI="$SPEC"; command -v cygpath >/dev/null 2>&1 && SPEC_PI="$(cygpath -m "$SPEC")"
+grep -qx -- "@$SPEC_PI" "$TMPD/trace/args"; verifie "spec passée en chemin absolu (@)" "$?" 0
 grep -q "Tu es un exécutant" "$TMPD/trace/args"; verifie "consignes de executant.md en prompt système" "$?" 0
 grep -q "maxTurns" "$TMPD/trace/args"; verifie "frontmatter exclu des consignes" "$?" 1
 grep -q '"http://127.0.0.1:8000/v1"' "$TMPD/trace/models.json"; verifie "models.json : URL par défaut" "$?" 0

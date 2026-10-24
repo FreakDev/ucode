@@ -10,15 +10,16 @@ Par défaut, tu délègues. Tu ne gardes pour toi que ce qui ne peut pas être d
 
 Écueil à éviter : faire le travail toi-même parce que c'est plus rapide sur le moment. La question n'est pas « est-ce que je délègue ? » mais « comment je découpe pour rendre ça déléguable ? ».
 
-Dans ce document, DOSSIER_SKILL désigne le dossier qui contient ce fichier SKILL.md (son chemin absolu t'est indiqué au chargement du skill). Il contient aussi `executant.md` et `verifier.sh`.
+Dans ce document, DOSSIER_SKILL désigne le dossier qui contient ce fichier SKILL.md (son chemin absolu t'est indiqué au chargement du skill). Il contient aussi `executant.md`, `executant-pi.sh` et `verifier.sh`.
 
 ## 0. Amorçage (une fois par session, avant la première délégation)
 
-1. **Trouver l'exécutant.** Si un sous-agent nommé `ucode:executant` (installation en plugin) ou `executant` figure parmi tes sous-agents disponibles, c'est lui que tu lanceras. Passe à l'étape 3.
-2. **Sinon, le créer (installation en skill seul).**
+1. **Exécutant pi (prioritaire).** Lance `bash "DOSSIER_SKILL/executant-pi.sh" --sonder`. S'il affiche `OK`, l'exécutant est pi coding agent sur le modèle local servi par colibri : tu le lanceras avec `executant-pi.sh` (section 3). Passe à l'étape 4. Sinon (code 3 : pi absent ; code 4 : colibri injoignable ou modèle absent), dis-le à l'utilisateur en une phrase et continue avec un exécutant Claude (étapes 2 et 3).
+2. **Trouver l'exécutant Claude.** Si un sous-agent nommé `ucode:executant` (installation en plugin) ou `executant` figure parmi tes sous-agents disponibles, c'est lui que tu lanceras. Passe à l'étape 4.
+3. **Sinon, le créer (installation en skill seul).**
    - Si `.claude/agents/executant.md` n'existe pas à la racine du dépôt, dis à l'utilisateur en une phrase que tu crées le sous-agent du skill, puis copie `DOSSIER_SKILL/executant.md` vers `.claude/agents/executant.md` (crée le dossier si besoin).
    - Un sous-agent créé en cours de session n'est chargé qu'à la session suivante. D'ici là, utilise le **mode de repli** : lance un sous-agent généraliste en forçant le modèle `haiku`, et place en tête de son prompt les consignes de `DOSSIER_SKILL/executant.md` (le texte situé après le frontmatter), suivies de la spec.
-3. **Journal.** Si `.ucode/` n'est pas dans le `.gitignore` du dépôt, ajoute-le.
+4. **Journal.** Si `.ucode/` n'est pas dans le `.gitignore` du dépôt, ajoute-le.
 
 ## 1. Méthode
 
@@ -65,6 +66,20 @@ Lance l'exécutant (étape 0) avec cette spec. Il est petit : il ne doit jamais 
     COMMANDE DE TESTS : la commande qui doit passer, lancée depuis la racine du worktree
     CONTRAINTES : style, bibliothèques autorisées ou interdites
 
+### Avec pi (exécutant prioritaire)
+
+Écris la spec dans `.ucode/specs/<tache>.md` à la racine du dépôt principal (ignoré par git), puis lance, de préférence en arrière-plan car un modèle local est lent :
+
+    bash "DOSSIER_SKILL/executant-pi.sh" <worktree> <chemin absolu de la spec> [délai_secondes, défaut 1800]
+
+Le script lance pi en mode non interactif dans le worktree, avec les consignes de `executant.md` en prompt système et une configuration temporaire (`UCODE_PI_URL`, `UCODE_PI_MODELE`). Sa sortie est le compte rendu de pi ; `STATUT_EXECUTANT: delai_depasse` et le code 124 signalent un délai dépassé. Comme pour tout exécutant, seule la vérification (section 4) fait foi.
+
+Colibri sert généralement une requête à la fois : lance les tâches pi l'une après l'autre, sauf si tu sais que le serveur en traite plusieurs en parallèle.
+
+### Avec un sous-agent Claude
+
+Lance le sous-agent trouvé à l'étape 0 avec la même spec dans son prompt.
+
 Des tâches indépendantes, dans des worktrees séparés et avec des interfaces déjà fixées, peuvent être lancées en parallèle.
 
 ## 4. Vérification déterministe
@@ -94,7 +109,7 @@ Seulement si le statut est `succes`, relis le code avec `git -C <worktree> diff 
 
 Après chaque tâche terminée, ajoute une ligne JSON à `.ucode/journal.jsonl` à la racine du dépôt principal :
 
-    {"date": "...", "tache": "...", "executant": "<plugin|agent-projet|repli>-<modèle>", "nb_fichiers_autorises": 0, "tentatives": 0, "statut_final": "succes|abandon", "type_echec": "aucun|ponctuel|perimetre|delai|comprehension|trop_gros|trop_subtil", "reprise_par_orchestrateur": false}
+    {"date": "...", "tache": "...", "executant": "<pi|plugin|agent-projet|repli>-<modèle>", "nb_fichiers_autorises": 0, "tentatives": 0, "statut_final": "succes|abandon", "type_echec": "aucun|ponctuel|perimetre|delai|comprehension|trop_gros|trop_subtil", "reprise_par_orchestrateur": false}
 
 ## 7. Hygiène git
 

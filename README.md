@@ -1,8 +1,8 @@
 # ucode
 
-Variante « skill seul » de l'agent de code délégué. Claude Code (gros modèle) conçoit, découpe, écrit les tests et vérifie. Un sous-agent `executant`, sur un petit modèle (Haiku par défaut), implémente chaque tâche dans un worktree git isolé. Un script vérifie le résultat de façon déterministe : fichiers réellement modifiés via git, périmètre, tests relancés.
+Variante « skill seul » de l'agent de code délégué. Claude Code (gros modèle) conçoit, découpe, écrit les tests et vérifie. Un exécutant sur un petit modèle implémente chaque tâche dans un worktree git isolé : en priorité [pi coding agent](https://github.com/badlogic/pi-mono) sur un modèle local servi par colibri (Qwen3.6 par défaut), sinon le sous-agent Claude `executant` (Haiku par défaut). Un script vérifie le résultat de façon déterministe : fichiers réellement modifiés via git, périmètre, tests relancés.
 
-Aucun serveur, aucune dépendance en dehors de git et bash.
+Sans pi ni colibri, aucune dépendance en dehors de git et bash.
 
 ## Structure
 
@@ -13,9 +13,11 @@ agents/executant.md                 sous-agent fourni par le plugin
 skills/ucode/
   SKILL.md                          méthode de l'orchestrateur
   executant.md                      modèle du sous-agent (amorçage hors plugin)
+  executant-pi.sh                   lance pi coding agent sur colibri
   verifier.sh                       vérification déterministe
 install.sh / uninstall.sh           installation manuelle
 tests/test.sh                       auto-test
+tests/test_executant_pi.sh          auto-test du lanceur pi (faux pi et curl)
 ```
 
 `agents/executant.md` et `skills/ucode/executant.md` doivent rester identiques ; l'auto-test le vérifie.
@@ -73,6 +75,24 @@ Dans Claude Code, sur un dépôt git propre :
 
 Claude fixe les interfaces, écrit les tests, crée un worktree par tâche, lance l'exécutant, vérifie avec `verifier.sh`, relit, puis fusionne ou abandonne. Chaque tâche est journalisée dans `.ucode/journal.jsonl`, que le skill ajoute au `.gitignore`.
 
+### Exécutant pi + colibri
+
+Au début de chaque session, le skill lance `executant-pi.sh --sonder`. Si pi est installé et que colibri sert le modèle, les tâches sont confiées à pi ; sinon le skill le signale et utilise le sous-agent Claude.
+
+```bash
+npm install -g @mariozechner/pi-coding-agent       # pi
+skills/ucode/executant-pi.sh --sonder              # vérifie pi et colibri
+skills/ucode/executant-pi.sh <worktree> <spec.md> [délai_secondes]
+```
+
+| Variable | Défaut | Rôle |
+|---|---|---|
+| `UCODE_PI_URL` | `http://127.0.0.1:8000/v1` | API compatible OpenAI de colibri |
+| `UCODE_PI_MODELE` | `qwen3.6-colibri` | identifiant du modèle chez colibri |
+| `UCODE_PI_BIN` | `pi` | commande pi |
+
+Le script n'utilise pas `~/.pi` : il crée une configuration temporaire (`PI_CODING_AGENT_DIR`) avec un fournisseur `colibri`, lance pi hors ligne, sans session, extensions, skills ni fichiers de contexte, avec les seuls outils `read, edit, write, bash, grep, find, ls` et les consignes de `executant.md` en prompt système. Codes de sortie : 0 succès, 2 usage, 3 pi introuvable, 4 colibri injoignable ou modèle absent, 124 délai dépassé, sinon celui de pi.
+
 ### verifier.sh seul
 
 ```bash
@@ -86,6 +106,7 @@ Les caches de tests courants (`__pycache__`, `.pytest_cache`, `node_modules`…)
 ## Prérequis
 
 - Claude Code
+- Facultatif : pi coding agent (Node.js) et colibri servant un modèle
 - git 2.5 ou plus récent, bash
 - Linux ou macOS (sous macOS, `brew install coreutils` active le délai maximal des tests via `gtimeout`)
 
@@ -93,6 +114,7 @@ Les caches de tests courants (`__pycache__`, `.pytest_cache`, `node_modules`…)
 
 ```bash
 ./tests/test.sh
+./tests/test_executant_pi.sh
 ```
 
 Travaille dans un dossier temporaire. Lance aussi `claude plugin validate` si Claude Code est installé.
@@ -103,4 +125,5 @@ Travaille dans un dossier temporaire. Lance aussi `claude plugin validate` si Cl
 - Les vérifications consomment du contexte de l'orchestrateur.
 - Pas de métriques fines par tâche (tokens, durée) : seul le coût global de la session est disponible.
 - En mode de repli (première session sans plugin), pas de limite de tours pour l'exécutant.
+- Avec pi, la seule limite est le délai (30 min par défaut), et pi n'est pas confiné au worktree : comme pour le sous-agent, seul `verifier.sh` détecte une sortie de périmètre.
 - Les noms de fichiers contenant des espaces ne sont pas gérés par `verifier.sh`.

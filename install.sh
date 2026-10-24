@@ -56,7 +56,7 @@ fi
 mkdir -p "$CLAUDE_DIR/skills"
 rm -rf "$SKILL_DEST"
 cp -R "$SRC" "$SKILL_DEST"
-chmod +x "$SKILL_DEST/verifier.sh"
+chmod +x "$SKILL_DEST/verifier.sh" "$SKILL_DEST/executant-pi.sh"
 TMP="$(mktemp)"
 sed -e "s|^model: .*|model: $MODELE|" "$SRC/executant.md" > "$TMP" && mv "$TMP" "$SKILL_DEST/executant.md"
 

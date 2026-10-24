@@ -68,8 +68,12 @@ CONSIGNES="$(awk 'n>=2{print} /^---$/{n++}' "$DOSSIER/executant.md")"
 # Délai : timeout si disponible (Git Bash fournit timeout avec coreutils)
 if command -v timeout >/dev/null 2>&1; then TO="timeout $DELAI"; else TO=""; fi
 
+# Sous Windows (Git Bash), pi est un programme Node : il lui faut des chemins Windows,
+# que Git Bash ne convertit pas dans "@<chemin>".
+if command -v cygpath >/dev/null 2>&1; then SPEC="$(cygpath -m "$SPEC")"; CONF_PI="$(cygpath -m "$CONF")"; else CONF_PI="$CONF"; fi
+
 # Pas d'exec : le trap doit pouvoir supprimer la configuration temporaire.
-(cd "$WT" && PI_CODING_AGENT_DIR="$CONF" PI_OFFLINE=1 $TO "$PI" -p --no-session --no-extensions --no-skills --no-prompt-templates --no-context-files --tools read,edit,write,bash,grep,find,ls --model "colibri/$MODELE" --append-system-prompt "$CONSIGNES" "@$SPEC" "Implémente la tâche décrite dans cette spec." < /dev/null)
+(cd "$WT" && PI_CODING_AGENT_DIR="$CONF_PI" PI_OFFLINE=1 $TO "$PI" -p --no-session --no-extensions --no-skills --no-prompt-templates --no-context-files --tools read,edit,write,bash,grep,find,ls --model "colibri/$MODELE" --append-system-prompt "$CONSIGNES" "@$SPEC" "Implémente la tâche décrite dans cette spec." < /dev/null)
 CODE=$?
 
 if [ "$CODE" -eq 124 ]; then
